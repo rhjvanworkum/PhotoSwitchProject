@@ -1,5 +1,6 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
 
 import numpy as np
 import pandas as pd
@@ -37,13 +38,19 @@ def load_property_data(task):
 
     return smiles_list, property_vals
   
-def transform_data(X_train, X_test, y_train, y_test):
+def transform_data(X_train, X_test, y_train, y_test, n_components, use_pca=False):
     x_scaler = StandardScaler()
     X_train_scaled = x_scaler.fit_transform(X_train)
     X_test_scaled = x_scaler.transform(X_test)
     y_scaler = StandardScaler()
     y_train_scaled = y_scaler.fit_transform(y_train)
     y_test_scaled = y_scaler.transform(y_test)
+    
+    if use_pca:
+      pca = PCA(n_components)
+      X_train_scaled = pca.fit_transform(X_train)
+      print('(PCA) Fraction of variance retained is: ' + str(sum(pca.explained_variance_ratio_)))
+      X_test_scaled = pca.transform(X_test)
 
     return X_train_scaled, X_test_scaled, x_scaler, y_train_scaled, y_test_scaled, y_scaler
   
