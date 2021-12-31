@@ -3,7 +3,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
-from utils import load_features_and_labels, transform_data
+from utils import transform_data
 
 def train_rf_model(X, y, 
                    n_components=0, 

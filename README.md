@@ -9,6 +9,11 @@
 molecular representation
 
 
+### Plan:
+1. tackle point 1 through training a fine-tuned pretrained BERT model
+2. tackle point 3 through constructing a GPR model where the uncertainty can be investigated
+
+
 
 Final Project
 Meme
