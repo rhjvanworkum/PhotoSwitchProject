@@ -71,4 +71,22 @@ def load_features_and_labels(feature_file, task):
   features = pd.read_csv(feature_file).to_numpy()[:, 2:] # remove index and smiles string
   features = np.delete(features, invalid_indices, axis=0)
   
-  return features, property_vals
+  return smiles_list, features, pd.read_csv(feature_file), property_vals
+
+import matplotlib.pyplot as plt
+
+def plot_pca(file, task):
+  smiles, labels = load_property_data(task)
+  invalid_indices = np.argwhere(np.isnan(labels))
+  
+  labels = np.delete(labels, invalid_indices)
+  
+  features = pd.read_csv(file).to_numpy()[:, 2:]
+  features = np.delete(features, invalid_indices, axis=0)
+
+  pca = PCA(n_components = 2)
+  components = pca.fit_transform(features)
+  
+  print('explained variance: ', pca.explained_variance_ratio_)
+  plt.scatter(components[:, 0], components[:, 1], c=labels, cmap='bwr')
+  plt.show()

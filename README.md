@@ -16,7 +16,6 @@ molecular representation
 
 
 Final Project
-Meme
 For your final project, you will be asked to analyse data from the following paper: The Photoswitch Dataset: A Molecular Machine Learning Benchmark for the Advancement of Synthetic Chemistry.
 
 In this data, you will find a variety of measurements done for a total of 405 molecules. However, the original paper's data only contains SMILES representations of the molecules, and in order to do anything useful with this we need to "featurise" them, which means to turn the character strings describing molecules into quantitative data that can then be used by the models to be learnt and fit on. Since this step can sometimes be a little involved (much research in cheminformatics is dedicated to this field!), I have prepared this for you. You will find the data featurised in three distinct ways:
@@ -44,3 +43,11 @@ Could even try neural networks?
 Unsupervised learning:
 Clustering 405 molecules should be somewhat of a tangible, tractable task, what groups of molecules are you seeing?
 Paper does have advanced methods of dimensionality reduction, but maybe even PCA etc. can show stuff, too. Should be interesting to see if featurisation matters!
+
+#### molbert
+version   freeze level  finetune_
+3         0               0
+4         -1              2
+5         -4              3
+6         -2              4
+7         -3              5

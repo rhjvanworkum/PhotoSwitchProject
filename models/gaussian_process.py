@@ -81,8 +81,10 @@ def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_fol
     
     model = gpflow.models.GPR(data=(X_train, y_train), mean_function=gpflow.mean_functions.Constant(np.mean(y_train)), kernel=Tanimoto(), noise_variance=1)
     optimizer = gpflow.optimizers.Scipy()
-    optimizer.minimize(-model.log_marginal_likelihood(), model.trainable_variables, options=dict(maxiter=10000))
-    gpflow.utilities.print_summary(model)
+    def closure():
+        return -model.log_marginal_likelihood()
+    optimizer.minimize(closure, model.trainable_variables, options=dict(maxiter=10000))
+    # gpflow.utilities.print_summary(model)
     
     y_pred, y_var = model.predict_f(X_test)
     y_pred = y_scaler.inverse_transform(y_pred)
@@ -118,3 +120,29 @@ def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_fol
   print("\nmean R^2: {:.4f} +- {:.4f}".format(np.mean(r2_list), np.std(r2_list)/np.sqrt(len(r2_list))))
   print("mean RMSE: {:.4f} +- {:.4f}".format(np.mean(rmse_list), np.std(rmse_list)/np.sqrt(len(rmse_list))))
   print("mean MAE: {:.4f} +- {:.4f}\n".format(np.mean(mae_list), np.std(mae_list)/np.sqrt(len(mae_list))))
+  
+def get_gp_data(X, y, smiles, n_components=0, use_pca=False, test_set_size=0.2):
+    X_train, X_test, y_train, y_test, smiles_train, smiles_test = train_test_split(X, y, smiles, test_size=test_set_size, random_state=0)
+    y_train = y_train.reshape(-1, 1)
+    y_test = y_test.reshape(-1, 1)
+    X_train, X_test, x_scaler, y_train, y_test, y_scaler = transform_data(X_train, X_test, 
+                                                                          y_train, y_test,
+                                                                          n_components=n_components,
+                                                                          use_pca=use_pca)
+    
+    model = gpflow.models.GPR(data=(X_train, y_train), mean_function=gpflow.mean_functions.Constant(np.mean(y_train)), kernel=Tanimoto(), noise_variance=1)
+    optimizer = gpflow.optimizers.Scipy()
+    def closure():
+        return -model.log_marginal_likelihood()
+    optimizer.minimize(closure, model.trainable_variables, options=dict(maxiter=10000))
+    # gpflow.utilities.print_summary(model)
+    
+    y_pred, y_var = model.predict_f(X_test)
+    y_pred = y_scaler.inverse_transform(y_pred)
+    y_test = y_scaler.inverse_transform(y_test)
+    
+    y_train = y_scaler.inverse_transform(y_train)
+    
+    # NOTE: X_train/X_test is still in transformed values
+    return X_test, y_test, smiles_test, y_pred, y_var
+    
