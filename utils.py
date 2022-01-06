@@ -10,7 +10,7 @@ def load_property_data(task):
     Load data corresponding to the property prediction task.
     :return: property_vals
     """
-    df = pd.read_csv('./raw_data/photoswitches.csv')
+    df = pd.read_csv('./raw_data/photoswitches_2.csv')
     smiles_list = df['SMILES'].to_numpy()
     
     if task == 'thermal':

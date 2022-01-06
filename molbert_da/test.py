@@ -4,12 +4,7 @@ from sklearn.model_selection import train_test_split
 
 from molbert.utils.featurizer.molbert_featurizer import MolBertFeaturizer
 
-path_to_checkpoint = './molbert_100epochs/checkpoints/last.ckpt'
-f = MolBertFeaturizer(path_to_checkpoint, device='cpu')
-
-smiles = pd.read_csv('../raw_data/photoswitches.csv').to_numpy()[:, 1]
-
-# # for now just used to pretrained dataset, later on might fine tune a model
+# TOO GENERATE DATA
 # df = pd.read_csv('../raw_data/photoswitches.csv')
 # columns = df.columns
 
@@ -26,6 +21,10 @@ smiles = pd.read_csv('../raw_data/photoswitches.csv').to_numpy()[:, 1]
 # pd.DataFrame(df_test, columns=columns).to_csv('df_test.csv')
 # pd.DataFrame(df_val, columns=columns).to_csv('df_val.csv')
 
+path_to_checkpoint = './version_3/checkpoints/last.ckpt'
+f = MolBertFeaturizer(path_to_checkpoint, device='cpu')
+
+smiles = pd.read_csv('../raw_data/photoswitches.csv').to_numpy()[:, 1]
 
 features, masks = f.transform(smiles)
 assert all(masks)
@@ -34,7 +33,7 @@ index = ['Row'+str(i) for i in range(1, len(features[0]) + 1)]
 df = pd.DataFrame(features, columns=index)
 df.insert(loc=0, column='Smiles', value=smiles)
 
-df.to_csv('./test.csv')
+df.to_csv('../processed_data/molbert_tuned_3_features.csv')
 
 # git clone https://github.com/BenevolentAI/MolBERT.git
 
