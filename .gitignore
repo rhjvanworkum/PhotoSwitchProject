@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+.molbert_da/
+/molbert_da
+
 # Distribution / packaging
 .Python
 build/
