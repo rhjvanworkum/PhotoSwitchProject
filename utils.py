@@ -38,7 +38,7 @@ def load_property_data(task):
 
     return smiles_list, property_vals
   
-def transform_data(X_train, X_test, y_train, y_test, n_components, use_pca=False):
+def transform_data(X_train, X_test, y_train, y_test, n_components=0, use_pca=False):
     x_scaler = StandardScaler()
     X_train_scaled = x_scaler.fit_transform(X_train)
     X_test_scaled = x_scaler.transform(X_test)
@@ -62,13 +62,12 @@ def split_and_rescale_data(X, y, split):
   
 def load_features_and_labels(feature_file, task):
   smiles_list, property_vals = load_property_data(task)
+  features = pd.read_csv(feature_file).to_numpy()[2:, :] # remove index and smiles string
   
   invalid_indices = np.argwhere(np.isnan(property_vals))
   
   smiles_list = np.delete(np.array(smiles_list), invalid_indices)
   property_vals = np.delete(property_vals, invalid_indices)
-  
-  features = pd.read_csv(feature_file).to_numpy()[:, 2:] # remove index and smiles string
   features = np.delete(features, invalid_indices, axis=0)
   
   return smiles_list, features, pd.read_csv(feature_file), property_vals
