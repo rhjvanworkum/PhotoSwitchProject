@@ -74,7 +74,6 @@ def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_fol
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_set_size, random_state=i)
     y_train = y_train.reshape(-1, 1)
     y_test = y_test.reshape(-1, 1)
-    print(X_train.shape, y_train.shape)
     X_train, X_test, x_scaler, y_train, y_test, y_scaler = transform_data(X_train, X_test, 
                                                                           y_train, y_test,
                                                                           n_components=n_components,
@@ -85,7 +84,6 @@ def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_fol
     def closure():
         return -model.log_marginal_likelihood()
     optimizer.minimize(closure, model.trainable_variables, options=dict(maxiter=10000))
-    # gpflow.utilities.print_summary(model)
     
     y_pred, y_var = model.predict_f(X_test)
     y_pred = y_scaler.inverse_transform(y_pred)
