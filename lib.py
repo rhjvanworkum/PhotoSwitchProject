@@ -21,12 +21,6 @@ def generate_smiles(filename, parent_mols, linkers, terminals):
     """
     all_smiles = []
     
-    for linker in linkers:
-      linker = linker_reaction_template + linker
-      
-    for terminal in terminals:
-      terminal = terminal_reaction_template + terminal
-    
     for parent_mol in parent_mols:
         parent_mol = Chem.MolFromSmarts(parent_mol)
 
@@ -39,12 +33,13 @@ def generate_smiles(filename, parent_mols, linkers, terminals):
         place_holder_count = len(parent_mol.GetSubstructMatches(linker_place_holder_mol))
 
         for linker in linkers:
-            rxn = AllChem.ReactionFromSmarts(linker)
+            rxn = AllChem.ReactionFromSmarts(linker_reaction_template + linker)
             core = parent_mol
             for i in range(place_holder_count):
                 new_mols = list(chain.from_iterable(rxn.RunReactants((core,))))
-                core = new_mols[0]
-                Chem.SanitizeMol(core)
+                if len(new_mols) > 0:
+                    core = new_mols[0]
+                    Chem.SanitizeMol(core)
             unsubstituted_cores.append(core)
 
         substituent_place_holder = '[*:1]([Y])'
@@ -60,7 +55,7 @@ def generate_smiles(filename, parent_mols, linkers, terminals):
                 continue
             for terminal in terminals:
                 new_mol = core
-                rxn = AllChem.ReactionFromSmarts(terminal)
+                rxn = AllChem.ReactionFromSmarts(terminal_reaction_template + terminal)
                 for i in range(place_holder_count):
                     new_mols = list(chain.from_iterable(rxn.RunReactants((new_mol,))))
                     new_mol = new_mols[0]
@@ -70,9 +65,10 @@ def generate_smiles(filename, parent_mols, linkers, terminals):
         # canonicalize smiles to remove duplicates
         all_mols = [Chem.MolFromSmiles(smiles) for smiles in [
             Chem.MolToSmiles(mol) for mol in all_mols]]
+        print(len(all_mols))
         all_smiles += list(set([Chem.MolToSmiles(mol) for mol in all_mols]))
 
     # write list of SMILES to text file
-    with open(os.path.join(filename + ".txt"), "w") as f:
+    with open(filename, "w") as f:
         for smiles in all_smiles:
             f.write(smiles + "\n")
