@@ -5,12 +5,12 @@ from sklearn.decomposition import PCA
 import numpy as np
 import pandas as pd
 
-def load_property_data(task):
+def load_property_data(task, smiles_file):
     """
     Load data corresponding to the property prediction task.
     :return: property_vals
     """
-    df = pd.read_csv('./raw_data/photoswitches_2.csv')
+    df = pd.read_csv(smiles_file)
     smiles_list = df['SMILES'].to_numpy()
     
     if task == 'thermal':
@@ -60,9 +60,9 @@ def split_and_rescale_data(X, y, split):
   y_test = y_test.reshape(-1, 1)
   return transform_data(X_train, X_test, y_train, y_test)
   
-def load_features_and_labels(feature_file, task):
-  smiles_list, property_vals = load_property_data(task)
-  features = pd.read_csv(feature_file).to_numpy()[2:, :] # remove index and smiles string
+def load_features_and_labels(feature_file, smiles_file, task):
+  smiles_list, property_vals = load_property_data(task, smiles_file)
+  features = pd.read_csv(feature_file).to_numpy()[:, 2:] # remove index and smiles string
   
   invalid_indices = np.argwhere(np.isnan(property_vals))
   

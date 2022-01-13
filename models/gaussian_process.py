@@ -74,6 +74,7 @@ def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_fol
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_set_size, random_state=i)
     y_train = y_train.reshape(-1, 1)
     y_test = y_test.reshape(-1, 1)
+    print(X_train.shape, y_train.shape)
     X_train, X_test, x_scaler, y_train, y_test, y_scaler = transform_data(X_train, X_test, 
                                                                           y_train, y_test,
                                                                           n_components=n_components,
@@ -120,6 +121,8 @@ def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_fol
   print("\nmean R^2: {:.4f} +- {:.4f}".format(np.mean(r2_list), np.std(r2_list)/np.sqrt(len(r2_list))))
   print("mean RMSE: {:.4f} +- {:.4f}".format(np.mean(rmse_list), np.std(rmse_list)/np.sqrt(len(rmse_list))))
   print("mean MAE: {:.4f} +- {:.4f}\n".format(np.mean(mae_list), np.std(mae_list)/np.sqrt(len(mae_list))))
+  
+  return model, x_scaler, y_scaler
   
 def get_gp_data(X, y, smiles, n_components=0, use_pca=False, test_set_size=0.2):
     X_train, X_test, y_train, y_test, smiles_train, smiles_test = train_test_split(X, y, smiles, test_size=test_set_size, random_state=0)
