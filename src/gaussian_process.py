@@ -1,20 +1,18 @@
-from utils import transform_data
-
-
 import gpflow
+from gpflow.utilities import positive
+from gpflow.utilities.ops import broadcasting_elementwise
+import tensorflow as tf
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
+from utils import transform_data
 
 
 """
-Molecule kernels for Gaussian Process Regression implemented in GPflow.
+This is the Tanimoto kernel for molecular similarity, implemented as a gpflow kernel function.
+Mainly taken from: https://github.com/Ryan-Rhys/The-Photoswitch-Dataset
 """
-from gpflow.utilities import positive
-from gpflow.utilities.ops import broadcasting_elementwise
-import tensorflow as tf
-
 class Tanimoto(gpflow.kernels.Kernel):
     def __init__(self, **kwargs):
         """
@@ -56,6 +54,7 @@ class Tanimoto(gpflow.kernels.Kernel):
         """
         return tf.fill(tf.shape(X)[:-1], tf.squeeze(self.variance))
 
+
 def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_folds=10):
   
   r2_list = []
@@ -71,6 +70,7 @@ def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_fol
   print('\nBeginning training loop...')
 
   for i in range(n_folds):
+    # transofrming the data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_set_size, random_state=i)
     y_train = y_train.reshape(-1, 1)
     y_test = y_test.reshape(-1, 1)
@@ -79,6 +79,7 @@ def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_fol
                                                                           n_components=n_components,
                                                                           use_pca=use_pca)
     
+    # defining the gpflow model
     model = gpflow.models.GPR(data=(X_train, y_train), mean_function=gpflow.mean_functions.Constant(np.mean(y_train)), kernel=Tanimoto(), noise_variance=1)
     optimizer = gpflow.optimizers.Scipy()
     def closure():
@@ -100,17 +101,9 @@ def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_fol
       mae = mean_absolute_error(y_test[conf], y_pred[conf])
       mae_confidence_list[i, k] = mae
       
-    # Output Standardised RMSE and RMSE on Train Set
-    # y_pred_train, _ = model.predict_f(X_train)
-    # train_rmse_stan = np.sqrt(mean_squared_error(y_train, y_pred_train))
-    # train_rmse = np.sqrt(mean_squared_error(y_scaler.inverse_transform(y_train), y_scaler.inverse_transform(y_pred_train)))
-
-    score = r2_score(y_test, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-    mae = mean_absolute_error(y_test, y_pred)
-    r2_list.append(score)
-    rmse_list.append(rmse)
-    mae_list.append(mae)
+    r2_list.append(r2_score(y_test, y_pred))
+    rmse_list.append(np.sqrt(mean_squared_error(y_test, y_pred)))
+    mae_list.append(mean_absolute_error(y_test, y_pred))
 
   r2_list = np.array(r2_list)
   rmse_list = np.array(rmse_list)
@@ -120,30 +113,4 @@ def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_fol
   print("mean RMSE: {:.4f} +- {:.4f}".format(np.mean(rmse_list), np.std(rmse_list)/np.sqrt(len(rmse_list))))
   print("mean MAE: {:.4f} +- {:.4f}\n".format(np.mean(mae_list), np.std(mae_list)/np.sqrt(len(mae_list))))
   
-  return model, x_scaler, y_scaler
-  
-def get_gp_data(X, y, smiles, n_components=0, use_pca=False, test_set_size=0.2):
-    X_train, X_test, y_train, y_test, smiles_train, smiles_test = train_test_split(X, y, smiles, test_size=test_set_size, random_state=0)
-    y_train = y_train.reshape(-1, 1)
-    y_test = y_test.reshape(-1, 1)
-    X_train, X_test, x_scaler, y_train, y_test, y_scaler = transform_data(X_train, X_test, 
-                                                                          y_train, y_test,
-                                                                          n_components=n_components,
-                                                                          use_pca=use_pca)
-    
-    model = gpflow.models.GPR(data=(X_train, y_train), mean_function=gpflow.mean_functions.Constant(np.mean(y_train)), kernel=Tanimoto(), noise_variance=1)
-    optimizer = gpflow.optimizers.Scipy()
-    def closure():
-        return -model.log_marginal_likelihood()
-    optimizer.minimize(closure, model.trainable_variables, options=dict(maxiter=10000))
-    # gpflow.utilities.print_summary(model)
-    
-    y_pred, y_var = model.predict_f(X_test)
-    y_pred = y_scaler.inverse_transform(y_pred)
-    y_test = y_scaler.inverse_transform(y_test)
-    
-    y_train = y_scaler.inverse_transform(y_train)
-    
-    # NOTE: X_train/X_test is still in transformed values
-    return X_test, y_test, smiles_test, y_pred, y_var
-    
+  return model, x_scaler, y_scaler    

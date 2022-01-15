@@ -1,4 +1,3 @@
-import os
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit import rdBase
@@ -11,13 +10,14 @@ terminal_reaction_template = '[*:1]([Y])>>[*:1]'
 
 def generate_smiles(filename, parent_mols, linkers, terminals):
     """Function used to generate a library of molecules following the format of a
-    parent molecule ....
+    [Terminal] - [Linker] - [Parent Mol] - [Linker] - [Terminal], where parent mol is
+    some kind of photoswitch molecule (like azobenzene)
 
     Args:
-        filename ([type]): [description]
-        parent_mols ([type]): [description]
-        linkers ([type]): [description]
-        terminals ([type]): [description]
+        filename (string): path to the file to which the library of smiles strings will be writen to
+        parent_mols (string): a smart string describing the parent molecule and the linker binding sites
+        linkers (list): a smart string describing the linker and the terminal binding site
+        terminals (list): a smart string describing the terminal
     """
     all_smiles = []
     
