@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
-from utils import transform_data
+from src.utils import transform_data
 
 
 """
