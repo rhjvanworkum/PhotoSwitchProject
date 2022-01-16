@@ -55,7 +55,24 @@ class Tanimoto(gpflow.kernels.Kernel):
         return tf.fill(tf.shape(X)[:-1], tf.squeeze(self.variance))
 
 
-def train_gp_model(X, y, n_components=0, use_pca=False, test_set_size=0.2, n_folds=10):
+def train_gp_model(X, y, 
+                   n_components=0, 
+                   use_pca=False, 
+                   test_set_size=0.2, 
+                   n_folds=10):
+  """Function to train a Gaussian Process Regression model and evaluate it's performance using cross-fold validation
+
+  Args:
+      X (np.ndarray): numpy array containing features
+      y (np.ndarray): numpy array containing labels
+      n_components (int, optional): amount of principal components to keep in the features if using pca. Defaults to 0.
+      use_pca (bool, optional): using pca to reduce the dimensionality of the training data. Defaults to False.
+      test_set_size (float, optional): the ratio between test/train data. Defaults to 0.2.
+      n_folds (int, optional): amount of folds for the cross-fold validation. Defaults to 10.
+
+  Returns:
+      model, x_scaler, y_scaler
+  """
   
   r2_list = []
   rmse_list = []

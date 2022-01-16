@@ -19,6 +19,14 @@ end
 """
 
 def run_orca_calculation(orca_dir, smiles):
+    """Runs a TD-DFT calculation for a certain molecule in order to calculate
+    it's adsorption spectrum
+
+    Args:
+        orca_dir (string): path to the output directory for the orca calcs
+        smiles (string): the input molecule to the calculation
+    """
+    
     if not os.path.isdir(orca_dir):
       os.makedirs(orca_dir)
       
@@ -50,6 +58,18 @@ def run_orca_calculation(orca_dir, smiles):
     os.system("orca " + filename + '.inp' + " > " + filename + '.out')
     
 def extract_wavelength_from_calculation(orca_dir, smiles, task):
+  """extracts the n-pi* or pi-pi* adsorption wavelength from the ouput file of a
+  TD-DFT calculation in Orca
+
+  Args:
+      orca_dir (string): path to the output directory for the orca calcs
+      smiles (string): the input molecule to the calculation
+      task (string): whether to output the n-pi* or pi-pi* adsorption wavelength 
+
+  Returns:
+      float: the adsorpted wavelength
+  """
+  
   filename = orca_dir + smiles + '.out'
   
   if not os.path.exists(filename):
@@ -66,7 +86,6 @@ def extract_wavelength_from_calculation(orca_dir, smiles, task):
             if counter >= 5:
               new_line = " ".join(line.split())
               tddft_vals = new_line.split()
-
               temp_list.append(tddft_vals)
 
           else:

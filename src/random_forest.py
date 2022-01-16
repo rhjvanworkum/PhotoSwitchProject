@@ -13,21 +13,21 @@ def train_rf_model(X, y,
                    min_samples_leaf=2, 
                    test_set_size=0.2, 
                    n_folds=10):
-  """[summary]
+  """Function to train a random forest model and evaluate it's performance using cross-fold validation
 
   Args:
-      X ([type]): [description]
-      y ([type]): [description]
-      n_components (int, optional): [description]. Defaults to 0.
-      use_pca (bool, optional): [description]. Defaults to False.
-      n_estimators (int, optional): [description]. Defaults to 1519.
-      max_features (float, optional): [description]. Defaults to 0.086.
-      min_samples_leaf (int, optional): [description]. Defaults to 2.
-      test_set_size (float, optional): [description]. Defaults to 0.2.
-      n_folds (int, optional): [description]. Defaults to 10.
+      X (np.ndarray): numpy array containing features
+      y (np.ndarray): numpy array containing labels
+      n_components (int, optional): amount of principal components to keep in the features if using pca. Defaults to 0.
+      use_pca (bool, optional): using pca to reduce the dimensionality of the training data. Defaults to False.
+      n_estimators (int, optional): amount of estimators used in the RF model. Defaults to 1519.
+      max_features (float, optional): hyperparameters of the RF model. Defaults to 0.086.
+      min_samples_leaf (int, optional): hyperparameters of the RF model. Defaults to 2.
+      test_set_size (float, optional): the ratio between test/train data. Defaults to 0.2.
+      n_folds (int, optional): amount of folds for the cross-fold validation. Defaults to 10.
 
   Returns:
-      [type]: [description]
+      model, x_scaler, y_scaler
   """
   
   r2_list = []
