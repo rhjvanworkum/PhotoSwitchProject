@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import tensorflow as tf
 
-from src.utils import transform_data
+from photoswitch.utils import transform_data
 
 # this is a tensorflow callback in order to lower the learning rate during training
 reduce_lr_on_plat = tf.keras.callbacks.ReduceLROnPlateau(
