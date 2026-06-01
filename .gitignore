@@ -134,3 +134,5 @@ dmypy.json
 
 .molbert_da
 .MolBERT
+# Example run artifacts
+examples/output/

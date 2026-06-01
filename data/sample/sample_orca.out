@@ -1,0 +1,13 @@
+Some ORCA preamble that the parser ignores.
+Random line.
+
+ABSORPTION SPECTRUM VIA TRANSITION ELECTRIC DIPOLE MOMENTS
+-----------------------------------------------------------------------------
+State   Energy    Wavelength   fosc         T2         TX        TY        TZ
+        (cm-1)      (nm)                   (au**2)     (au)      (au)      (au)
+-----------------------------------------------------------------------------
+   1   22000.0      454.5      0.300      0.1000     0.10      0.20      0.30
+   2   30000.0      333.3      0.500      0.2000     0.40      0.50      0.60
+   3   40000.0      250.0      0.100      0.0500     0.01      0.02      0.03
+
+Trailing content after the blank line is ignored.
