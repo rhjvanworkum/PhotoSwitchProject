@@ -1,0 +1,87 @@
+[project]
+name = "photoswitch"
+version = "0.1.0"
+description = "A synthetic chemist's guide through organic photoswitch chemical space: featurisation, property prediction, virtual screening, and latent-space optimization."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Ruard van Workum" }]
+keywords = ["chemistry", "cheminformatics", "machine-learning", "photoswitch", "virtual-screening"]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
+
+# Core dependencies: everything needed for data loading, preprocessing, the
+# combinatorial SMILES library, DFT output parsing, and the random-forest model.
+# These are installed and exercised in CI.
+dependencies = [
+    "numpy>=1.22,<2",
+    "pandas>=1.4",
+    "scikit-learn>=1.0",
+    "matplotlib>=3.5",
+    "rdkit>=2022.9",
+]
+
+[project.optional-dependencies]
+# Gaussian-process and neural-network models. Heavy and harder to pin; installable
+# but not gated in CI.
+ml = [
+    "tensorflow>=2.10,<2.16",
+    "gpflow>=2.6",
+]
+# Latent-space optimization (Junction-Tree VAE) lives in a notebook and needs torch.
+torch = ["torch>=1.13"]
+# Mordred molecular descriptors (unmaintained; pinned to a numpy<2 world).
+descriptors = ["mordred>=1.2"]
+# Geometry generation for ORCA TD-DFT input files. The ORCA binary itself is an
+# external program and is not a Python dependency.
+dft = ["chemml>=1.2"]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.6",
+    "mypy>=1.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/photoswitch"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests", "examples"]
+# Notebooks are research artifacts: they intentionally use sys.path manipulation,
+# shell-install cells, and star-imports from externally cloned repositories.
+# Lint/format the package and tests, not the notebooks.
+extend-exclude = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = [
+    "E501",  # line length is handled by the formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"examples/*" = ["E402"]  # examples may set up sys.path before imports
+
+[tool.mypy]
+python_version = "3.10"
+# Start lenient; tighten over time.
+ignore_missing_imports = true
+warn_unused_ignores = false
+disallow_untyped_defs = false
+check_untyped_defs = true
+files = ["src/photoswitch"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

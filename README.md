@@ -1,19 +1,111 @@
-# PhotoSwitchProject - A synthetic chemist's guide through organic photoswitch chemical space
+# PhotoSwitchProject
 
-1. Featurization.ipynb - Notebook explaining how we generated different input features
-2. Feature_selection.ipynb - Notebook explaining the EDA & feature selection process
-3. Model_selection.ipynb - Notebook explaining how we tried out different models
-4. Screening.ipynb - Notebook explaining how we generated a photoswitch molecular library and select the promising candidates
-5. Optimization.ipynb - Notebook explaining how we optimized over chemical space using gradients & a continous representation
+A synthetic chemist's guide through organic photoswitch chemical space:
+featurise molecules, predict their transition wavelengths, virtually screen a
+generated library, and optimize candidates in a learned latent space.
 
-### INTRO
-Photoswitches are molecules with high potential in various innovative areas such a solar energy storage, locally effective drugs and photoelectronics. since
-the chemical space of all possible photomolecules is quite extensive, it would be very much resourcefull for researchers in this area to have an effective way
-of selecting photoswitches that might be worth synthesizing and testing out. Therefore we aim to build a virtual screening tool in order to select the most promising photoswitches from a large library of possible molecules.
-For now we specifically focussed on extracting photoswitches with a desired transition wavelength, according to a synthetical chemists wishes.
+Photoswitches are molecules with strong potential in solar energy storage,
+photopharmacology and photoelectronics. Because the space of possible
+photoswitches is enormous, this project builds a virtual-screening toolkit to
+surface the most promising candidates — currently focused on hitting a desired
+transition wavelength.
 
-### RESULTS
-- It was found that a set of mordred descriptors & deep learned MolBERT fingerprints performed very well when training a model to predict transition wavelenghts.
-- A Gaussian Process Regression model with the Tanimoto Kernel function was found to fit the data the best, which might be due to the small amount of data worked with. Plus the GPR model also allows us to model uncertainty in our predictions.
-- We performed virtual screening rounds on photoswitches for transition wavelengths of 450 nm and 650 nm, which we unfortunately haven't been able to check with DFT yet.
-- We took the most promising molecule from our screening round for 650 nm and optimized it's transition wavelength using a Junction-Tree VAE, although we haven't been able to verify the photoswitch characted of the molecule this model produced.
+## Install
+
+This project uses [uv](https://docs.astral.sh/uv/).
+
+```bash
+uv sync                 # core: data, library generation, random forest, DFT parsing
+uv sync --extra ml      # optional: Gaussian-process & neural-network models (TF/GPflow)
+```
+
+`uv sync` recreates the exact environment from `uv.lock` using the Python
+version pinned in `.python-version` (3.10).
+
+| Extra         | Adds                | Enables                                            |
+| ------------- | ------------------- | -------------------------------------------------- |
+| `ml`          | tensorflow, gpflow  | `models.gaussian_process`, `models.neural_network` |
+| `torch`       | torch               | latent-space optimization (Optimization notebook)  |
+| `descriptors` | mordred             | Mordred descriptor featurisation                   |
+| `dft`         | chemml              | generating ORCA TD-DFT input files                 |
+
+## Quickstart
+
+```python
+from photoswitch.data import load_features_and_labels
+from photoswitch.models.random_forest import train_rf_model
+
+# X: features, y: E-isomer pi-pi* transition wavelengths (nm)
+X, y = load_features_and_labels(
+    "data/sample/rdkit_descriptors_sample.csv",
+    "data/sample/photoswitches_sample.csv",
+    "e_iso_pi",
+)
+model, x_scaler, y_scaler = train_rf_model(X, y, n_estimators=20, n_folds=3)
+```
+
+## Examples
+
+Runnable, self-contained scripts using the small bundled data in `data/sample/`.
+Run them from the repo root:
+
+```bash
+uv run examples/generate_library.py        # combinatorial SMILES library generation
+uv run examples/train_random_forest.py      # cross-validated random-forest wavelength model
+uv run examples/parse_dft_output.py          # parse pi-pi*/n-pi* peaks from an ORCA output
+uv run examples/train_gaussian_process.py    # Tanimoto-kernel GP model (needs: uv sync --extra ml)
+```
+
+## Notebooks
+
+The original research workflow lives in `notebooks/` (run them after `uv sync`
+so the `photoswitch` package is importable; the cells expect the working
+directory to be the repository root, which is the VS Code Jupyter default):
+
+1. `notebooks/Featurisation.ipynb` — generating input features (Morgan, RDKit,
+   Mordred, MolBERT, JTNN).
+2. `notebooks/Features.ipynb` / `notebooks/Feature_selection.ipynb` — EDA and
+   feature selection.
+3. `notebooks/model_selection.ipynb` — comparing random forest, GP and neural
+   network.
+4. `notebooks/Screening.ipynb` — generating a photoswitch library and selecting
+   candidates.
+5. `notebooks/Optimization.ipynb` — optimizing over chemical space with a JT-VAE.
+
+Some notebook cells rely on external tools that are **not** reproducible here
+(the ORCA binary, and cloned MolBERT / Junction-Tree VAE repositories with
+pretrained checkpoints); those cells are documented but not run in CI.
+
+## Project structure
+
+```
+src/photoswitch/
+  data.py            # load property labels and feature matrices
+  preprocessing.py   # standard scaling, train/test splitting, PCA
+  viz.py             # PCA scatter plots
+  library.py         # combinatorial SMILES library generation (RDKit)
+  dft.py             # ORCA TD-DFT input generation + output parsing
+  models/
+    common.py        # shared cross-validation loop
+    random_forest.py # sklearn random forest        (core)
+    gaussian_process.py  # Tanimoto-kernel GP        (ml extra)
+    neural_network.py    # dense Keras network       (ml extra)
+data/sample/         # tiny bundled data for examples and tests
+examples/            # runnable example scripts
+notebooks/           # original research notebooks
+tests/               # pytest suite mirroring the package
+raw_data/, processed_data/   # full datasets used by the notebooks
+```
+
+## Results (from the original study)
+
+- A combination of Mordred descriptors and fine-tuned MolBERT fingerprints
+  predicted transition wavelengths well.
+- A Gaussian-process regressor with the Tanimoto kernel fit the (small) dataset
+  best and provides calibrated uncertainty.
+- Virtual screening was run for target wavelengths of 450 nm and 650 nm.
+
+## Development
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev setup and how to run tests,
+lint, formatting and type checks. Licensed under the [MIT License](LICENSE).
