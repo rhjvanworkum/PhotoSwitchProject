@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 
-from photoswitch.random_forest import train_rf_model
+from photoswitch.models.random_forest import train_rf_model
 
 
 def test_returns_model_and_scalers():
@@ -17,9 +17,7 @@ def test_returns_model_and_scalers():
     X = rng.normal(size=(40, 4))
     y = X[:, 0] * 3.0 + rng.normal(scale=0.1, size=40)
 
-    model, x_scaler, y_scaler = train_rf_model(
-        X, y, n_estimators=5, n_folds=2, test_set_size=0.25
-    )
+    model, x_scaler, y_scaler = train_rf_model(X, y, n_estimators=5, n_folds=2, test_set_size=0.25)
 
     assert isinstance(model, RandomForestRegressor)
     assert isinstance(x_scaler, StandardScaler)
