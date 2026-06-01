@@ -1,5 +1,5 @@
-from chemml.chem import Molecule
 import os
+
 import pandas as pd
 
 orca_input_file_string = \
@@ -27,11 +27,15 @@ def run_orca_calculation(orca_dir, smiles):
         smiles (string): the input molecule to the calculation
     """
     
+    # chemml is an optional extra (`pip install photoswitch[dft]`); import it
+    # lazily so the pure output parser below stays importable without it.
+    from chemml.chem import Molecule
+
     if not os.path.isdir(orca_dir):
       os.makedirs(orca_dir)
-      
+
     filename = orca_dir + smiles
-    
+
     mol = Molecule(smiles, 'smiles')
     # add hydrogens
     mol.hydrogens('add')
