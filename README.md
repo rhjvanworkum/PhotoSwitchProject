@@ -58,15 +58,19 @@ uv run examples/train_gaussian_process.py    # Tanimoto-kernel GP model (needs: 
 
 ## Notebooks
 
-The original research workflow lives in the notebooks (run them after
-`uv sync` so the `photoswitch` package is importable):
+The original research workflow lives in `notebooks/` (run them after `uv sync`
+so the `photoswitch` package is importable; the cells expect the working
+directory to be the repository root, which is the VS Code Jupyter default):
 
-1. `Featurisation.ipynb` — generating input features (Morgan, RDKit, Mordred,
-   MolBERT, JTNN).
-2. `Features.ipynb` / `Feature_selection.ipynb` — EDA and feature selection.
-3. `model_selection.ipynb` — comparing random forest, GP and neural network.
-4. `Screening.ipynb` — generating a photoswitch library and selecting candidates.
-5. `Optimization.ipynb` — optimizing over chemical space with a JT-VAE.
+1. `notebooks/Featurisation.ipynb` — generating input features (Morgan, RDKit,
+   Mordred, MolBERT, JTNN).
+2. `notebooks/Features.ipynb` / `notebooks/Feature_selection.ipynb` — EDA and
+   feature selection.
+3. `notebooks/model_selection.ipynb` — comparing random forest, GP and neural
+   network.
+4. `notebooks/Screening.ipynb` — generating a photoswitch library and selecting
+   candidates.
+5. `notebooks/Optimization.ipynb` — optimizing over chemical space with a JT-VAE.
 
 Some notebook cells rely on external tools that are **not** reproducible here
 (the ORCA binary, and cloned MolBERT / Junction-Tree VAE repositories with
@@ -88,6 +92,7 @@ src/photoswitch/
     neural_network.py    # dense Keras network       (ml extra)
 data/sample/         # tiny bundled data for examples and tests
 examples/            # runnable example scripts
+notebooks/           # original research notebooks
 tests/               # pytest suite mirroring the package
 raw_data/, processed_data/   # full datasets used by the notebooks
 ```
